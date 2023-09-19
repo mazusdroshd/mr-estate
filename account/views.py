@@ -1,8 +1,9 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.generics import CreateAPIView
 
-from account.serializers import PhoneSerializer
+from account.serializers import PhoneSerializer, UserSignUpSerializer
 from account.utils.otp import TOTP
 from account.utils.exeptions import UserExists, TooEarly
 
@@ -25,3 +26,8 @@ class RequestOtpView(APIView):
                 return Response({'detail': error.msg, 'remaining_time': error.remaining_seconds}, status=status.HTTP_400_BAD_REQUEST)
         else:
             return Response(serializer.errors)
+
+
+class CreateUserView(CreateAPIView):
+    serializer_class = UserSignUpSerializer
+    http_method_names = ['post',]
