@@ -13,7 +13,7 @@ class PhoneSerializer(serializers.Serializer):
         return value
 
 
-class UserSignUpSerializer(serializers.ModelSerializer):
+class UserSerializer(serializers.ModelSerializer):
     confirm_password = serializers.CharField(write_only=True)
     code = serializers.CharField(write_only=True)
     password = serializers.CharField(write_only=True)
