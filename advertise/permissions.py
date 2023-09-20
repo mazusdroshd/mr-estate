@@ -3,7 +3,7 @@ from rest_framework import permissions
 
 class IsImageOwner(permissions.BasePermission):
     def has_object_permission(self, request, view, obj):
-        is_owner = obj.advertise.user == request.user.is_authenticated
+        is_owner = obj.advertise.user == request.user
         return request.user.is_authenticated and is_owner
 
 
