@@ -13,7 +13,7 @@ from advertise.serializers import (
     AdvertiseImageSerializer)
 from advertise.filters import AdvertiseFilter
 from advertise.permissions import IsImageOwner, IsOwnerOrReadOnly
-from advertise.models import AdvertiseImage
+from advertise.models import AdvertiseImage, Advertise
 
 
 class AdvertiseListViewSet(viewsets.ModelViewSet):
@@ -73,3 +73,26 @@ class DeleteImageView(generics.DestroyAPIView):
 
     def get_queryset(self):
         return AdvertiseImage.objects.filter(advertise__user=self.request.user)
+
+    def perform_destroy(self, instance):
+        if instance.advertise.images.count() <= 1:
+            raise ValidationError(
+                {'error': 'you can\'t delete all images related to an ad'})
+        return super().perform_destroy(instance)
+
+
+class CreateImageView(generics.CreateAPIView):
+    serializer_class = AdvertiseImageSerializer
+    permission_classes = [IsAuthenticated, ]
+
+    def perform_create(self, serializer):
+        print(self.kwargs)
+        advertise_id = self.request.data.get('advertise_id')
+        advertise = Advertise.objects.get(id=advertise_id)
+        if advertise.images.count() == 3:
+            raise ValidationError(
+                'you can not upload more than 3 images for one add')
+        if advertise.user == self.request.user:
+            serializer.save(advertise=advertise)
+            return
+        raise ValidationError('ad doesn\'t belong to you')

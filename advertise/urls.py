@@ -10,4 +10,8 @@ router.register('', views.AdvertiseListViewSet, basename='advertise')
 
 urlpatterns = [
     path('', include(router.urls)),
+    path('upload_image/<int:pk>/',
+         views.CreateImageView.as_view(), name="upload_image"),
+    path('delete_image/<int:pk>/',
+         views.DeleteImageView.as_view(), name="delete_image"),
 ]
