@@ -1,3 +1,9 @@
-from django.shortcuts import render
+from rest_framework import generics
 
-# Create your views here.
+from advertise.models import Advertise
+from advertise.serializers import AdvertiseListSerializer
+
+
+class AdvertiseListView(generics.ListAPIView):
+    serializer_class = AdvertiseListSerializer
+    queryset = Advertise.objects.all()
