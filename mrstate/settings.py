@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     # 3rd parties
     'rest_framework',
     'drf_spectacular',
+    'django_filters',
 
     # Local apps
     'account',
