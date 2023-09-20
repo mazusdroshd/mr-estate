@@ -3,7 +3,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.generics import CreateAPIView
 
-from account.serializers import PhoneSerializer, UserSignUpSerializer
+from account.serializers import PhoneSerializer, UserSerializer
 from account.utils.otp import TOTP
 from account.utils.exeptions import UserExists, TooEarly
 
@@ -29,5 +29,5 @@ class RequestOtpView(APIView):
 
 
 class CreateUserView(CreateAPIView):
-    serializer_class = UserSignUpSerializer
+    serializer_class = UserSerializer
     http_method_names = ['post',]
