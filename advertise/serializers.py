@@ -27,3 +27,11 @@ class AdvertiseListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Advertise
         fields = ['id', 'user', 'title', 'price', 'created', 'image']
+
+
+class AdvertiseSerializer(AdvertiseListSerializer):
+    images = AdvertiseImageSerializer(many=True)
+
+    class Meta:
+        model = Advertise
+        fields = ['id', 'user', 'title', 'price', 'created', 'images']
