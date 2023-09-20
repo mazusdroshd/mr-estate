@@ -1,14 +1,19 @@
 import django_filters
 
-from rest_framework import viewsets
+from rest_framework import viewsets, generics
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.exceptions import ValidationError
 from django.db import transaction
+from rest_framework.permissions import IsAuthenticated
 
 from advertise.models import Advertise
-from advertise.serializers import AdvertiseListSerializer, AdvertiseSerializer, AdvertiseImageSerializer
+from advertise.serializers import (
+    AdvertiseListSerializer,
+    AdvertiseSerializer,
+    AdvertiseImageSerializer)
 from advertise.filters import AdvertiseFilter
 from advertise.permissions import IsImageOwner, IsOwnerOrReadOnly
+from advertise.models import AdvertiseImage
 
 
 class AdvertiseListViewSet(viewsets.ModelViewSet):
@@ -60,3 +65,11 @@ class AdvertiseListViewSet(viewsets.ModelViewSet):
             queryset = queryset.order_by(ordering)
 
         return queryset
+
+
+class DeleteImageView(generics.DestroyAPIView):
+    serializer_class = AdvertiseImageSerializer
+    permission_classes = [IsAuthenticated, IsImageOwner, ]
+
+    def get_queryset(self):
+        return AdvertiseImage.objects.filter(advertise__user=self.request.user)
