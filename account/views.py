@@ -26,8 +26,8 @@ class CreateUserView(APIView):
             user = user_model.objects.create(
                 phone_number=phone_number,
             )
-            user.set_password(password)
-            user.save()
+        user.set_password(password)
+        user.save()
 
         try:
             code = totp.generate_otp(user=user)
