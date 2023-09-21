@@ -1,24 +1,23 @@
 import pyotp
 
-from datetime import datetime, timedelta
-from django.core.cache import cache
+from datetime import timedelta
 from django.contrib.auth import get_user_model
+from django.contrib.auth.models import AbstractBaseUser
+from django.utils import timezone
 
 from account.utils.exeptions import TooEarly, UserExists
+from account.models import OTP
 
 
 class TOTP:
-    def __init__(self, phone_number: str) -> None:
-        self.phone_number = phone_number
-
-    def generate_otp(self) -> str:
-        user_model = get_user_model()
-        if user_model.objects.filter(phone_number=self.phone_number).exists():
+    def generate_otp(self, user: AbstractBaseUser) -> str:
+        if user.is_active:
             raise UserExists()
 
-        last_request_time = cache.get(f"{self.phone_number}_request_time")
-        if last_request_time:
-            elapsed_time = datetime.now() - last_request_time
+        otp, created = OTP.objects.get_or_create(user=user)
+        if not created:
+            last_request_time = otp.request_time
+            elapsed_time = timezone.now() - last_request_time
             if elapsed_time < timedelta(minutes=1):
                 remaining_seconds = 60 - elapsed_time.seconds
                 raise TooEarly(
@@ -26,19 +25,22 @@ class TOTP:
                 )
 
         secret = pyotp.random_base32()
-        cache.set(self.phone_number, secret, timeout=60*5)
-        cache.set(f"{self.phone_number}_request_time",
-                  datetime.now(), timeout=60)
+        otp.secret = secret
+        otp.save()
         totp = pyotp.TOTP(secret, interval=60*5)
-        otp = totp.now()
-        return otp
+        code = totp.now()
+        return code
 
-    def validate_otp(self, code) -> bool:
-        secret = cache.get(self.phone_number)
-        if secret:
-            totp = pyotp.TOTP(secret, interval=5*60)
-            return totp.verify(code)
-        return False
+    def validate_otp(self, user: AbstractBaseUser, code: str) -> bool:
+        try:
+            otp = OTP.objects.get(user=user)
+            totp = pyotp.TOTP(otp.secret, interval=5*60)
+            result = totp.verify(code)
+            if result:
+                otp.delete()
+            return result
+        except OTP.DoesNotExist:
+            return False
 
-    def send_otp(self, code):
-        print(f"{self.phone_number} -> {code}")
+    def send_otp(self, user: AbstractBaseUser, code):
+        print(f"{user.phone_number} -> {code}")
