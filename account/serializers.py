@@ -33,6 +33,9 @@ class VerifyUserSerializer(serializers.Serializer):
 
 class UserUpdateSerializers(serializers.ModelSerializer):
     phone_number = serializers.CharField(read_only=True)
+    first_name = serializers.CharField(required=True, allow_blank=False)
+    last_name = serializers.CharField(required=True, allow_blank=False)
+    address = serializers.CharField(required=True, allow_blank=False)
 
     class Meta:
         model = CustomUser
