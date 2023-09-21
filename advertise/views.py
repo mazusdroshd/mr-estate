@@ -12,18 +12,18 @@ from advertise.serializers import (
     AdvertiseSerializer,
     AdvertiseImageSerializer)
 from advertise.filters import AdvertiseFilter
-from advertise.permissions import IsImageOwner, IsOwnerOrReadOnly
+from advertise.permissions import IsImageOwner, IsOwnerOrReadOnly, IsProfileComplete
 from advertise.models import AdvertiseImage, Advertise
 
 
-class AdvertiseListViewSet(viewsets.ModelViewSet):
+class AdvertiseViewSet(viewsets.ModelViewSet):
     queryset = Advertise.objects.all()
     filter_backends = [django_filters.rest_framework.DjangoFilterBackend, ]
     filterset_class = AdvertiseFilter
     ordering_fields = ['created', 'price']
     pagination_class = PageNumberPagination
     pagination_class.page_size = 30
-    permission_classes = [IsOwnerOrReadOnly, ]
+    permission_classes = [IsOwnerOrReadOnly, IsProfileComplete, ]
 
     def perform_create(self, serializer):
         with transaction.atomic():
@@ -69,7 +69,7 @@ class AdvertiseListViewSet(viewsets.ModelViewSet):
 
 class DeleteImageView(generics.DestroyAPIView):
     serializer_class = AdvertiseImageSerializer
-    permission_classes = [IsAuthenticated, IsImageOwner, ]
+    permission_classes = [IsAuthenticated, IsImageOwner, IsProfileComplete, ]
 
     def get_queryset(self):
         return AdvertiseImage.objects.filter(advertise__user=self.request.user)
@@ -83,7 +83,7 @@ class DeleteImageView(generics.DestroyAPIView):
 
 class CreateImageView(generics.CreateAPIView):
     serializer_class = AdvertiseImageSerializer
-    permission_classes = [IsAuthenticated, ]
+    permission_classes = [IsAuthenticated, IsProfileComplete, ]
 
     def perform_create(self, serializer):
         print(self.kwargs)
