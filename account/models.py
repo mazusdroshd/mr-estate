@@ -10,9 +10,8 @@ class CustomUser(AbstractUser):
     phone_number = models.CharField(
         max_length=11, unique=True, validators=[phone_validator,]
     )
-    first_name = models.CharField(_("first name"), max_length=150, blank=False)
-    last_name = models.CharField(_("last name"), max_length=150, blank=False)
-    address = models.TextField(blank=False)
+    address = models.TextField()
+    is_active = models.BooleanField(default=False)
     username = None
 
     objects = CustomUserManager()
@@ -21,3 +20,10 @@ class CustomUser(AbstractUser):
 
     def __str__(self) -> str:
         return self.get_full_name()
+
+
+class OTP(models.Model):
+    user = models.OneToOneField(
+        CustomUser, on_delete=models.CASCADE, related_name='otp')
+    secret = models.CharField(max_length=100)
+    request_time = models.DateTimeField(auto_now=True)
