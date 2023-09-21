@@ -10,8 +10,9 @@ from account import views
 app_name = 'account'
 
 urlpatterns = [
-    path('request_otp/', views.RequestOtpView.as_view(), name='request_otp'),
     path('signup/', views.CreateUserView.as_view(), name='signup'),
+    path('verify/', views.VerifyUserView.as_view(), name='verify_user'),
+    path('user/', views.UserRetrieveUpdateView.as_view(), name="user_info"),
     path('token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
 ]
