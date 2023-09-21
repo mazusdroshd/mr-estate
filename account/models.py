@@ -10,7 +10,7 @@ class CustomUser(AbstractUser):
     phone_number = models.CharField(
         max_length=11, unique=True, validators=[phone_validator,]
     )
-    address = models.TextField()
+    address = models.TextField(null=True, blank=True)
     is_active = models.BooleanField(default=False)
     username = None
 
