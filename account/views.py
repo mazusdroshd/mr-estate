@@ -26,8 +26,6 @@ class CreateUserView(APIView):
             user = user_model.objects.create(
                 phone_number=phone_number,
             )
-        user.set_password(password)
-        user.save()
 
         try:
             code = totp.generate_otp(user=user)
@@ -38,6 +36,9 @@ class CreateUserView(APIView):
                 'error': error.msg,
                 'remaining_time': error.remaining_seconds,
             }, status=status.HTTP_425_TOO_EARLY)
+
+        user.set_password(password)
+        user.save()
         totp.send_otp(user, code)
         return Response(serializer.data)
 
