@@ -6,7 +6,7 @@ from advertise import views
 app_name = 'advertise'
 
 router = DefaultRouter()
-router.register('', views.AdvertiseListViewSet, basename='advertise')
+router.register('', views.AdvertiseViewSet, basename='advertise')
 
 urlpatterns = [
     path('', include(router.urls)),
