@@ -40,12 +40,20 @@ class CreateUserView(APIView):
         user.set_password(password)
         user.save()
         totp.send_otp(user, code)
-        return Response(serializer.data)
+        refresh = RefreshToken.for_user(user)
+        return Response({
+            'data': UserSerializer(user).data,
+            'token': {
+                'access': str(refresh.access_token),
+                'refresh': str(refresh)
+                } 
+            })
 
 
 class VerifyUserView(APIView):
     serializer_class = VerifyUserSerializer
     http_method_names = ['post', ]
+    permission_classes = [permissions.IsAuthenticated, ]
 
     def post(self, request, *args, **kwargs):
         totp = TOTP()
@@ -65,8 +73,11 @@ class VerifyUserView(APIView):
             refresh = RefreshToken.for_user(user)
 
             return Response({
-                'refresh': str(refresh),
-                'access': str(refresh.access_token),
+                'data': UserSerializer(user).data,
+                'token': {
+                    'refresh': str(refresh),
+                    'access': str(refresh.access_token),
+                }
             })
         else:
             return Response({'error': 'code is not valid'}, status=status.HTTP_400_BAD_REQUEST)
